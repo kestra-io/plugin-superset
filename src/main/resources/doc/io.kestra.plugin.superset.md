@@ -1,16 +1,26 @@
-This is the Kestra plugin template. Use it as a starting point for building a new plugin.
+# How to use the Apache Superset plugin
 
-## What this template ships
+Orchestrate Apache Superset chart queries, dataset metadata refreshes, dashboard backups, and modification triggers from Kestra flows.
 
-- `Example` is a sample `RunnableTask` that reverses an input string.
-- `Trigger` is a sample polling trigger that fires an execution at random.
+## Authentication
 
-## How to build your plugin
+Every task and trigger authenticates against the Apache Superset REST API via `POST /api/v1/security/login` to obtain a short-lived JWT access token, and automatically fetches an `X-CSRFToken` from `GET /api/v1/security/csrf_token/` for write requests.
 
-1. Rename the package `io.kestra.plugin.superset` to your own, for example `io.kestra.plugin.myservice`.
-2. Update `group`, `name`, `title`, and `description` in `src/main/resources/metadata/index.yaml`.
-3. Replace `src/main/resources/icons/plugin-icon.svg` with your service's icon.
-4. Replace the `Example` and `Trigger` classes with your real tasks and triggers.
-5. Replace this how-to with documentation for your plugin.
+Store credentials using [Kestra secrets](https://kestra.io/docs/concepts/secret) and share common connection properties across tasks with [plugin defaults](https://kestra.io/docs/concepts/plugin-defaults):
 
-Run `./gradlew lintPluginDocs` before pushing to validate the plugin documentation.
+- `url`: Superset API base URL including `/api/v1` (e.g. `https://superset.example.com/api/v1`).
+- `username`: Superset username.
+- `password`: Superset password.
+- `provider`: Authentication provider (`db`, `ldap`, `oauth`, or `oid`; defaults to `db`).
+
+## Tasks
+
+- `io.kestra.plugin.superset.charts.Data`: Executes a chart query (`chartPayload` required) via `POST /chart/data` and outputs or stores the resulting rows (`fetchType`).
+- `io.kestra.plugin.superset.dashboards.List`: Pages through all dashboards via `GET /dashboard/` (`fetchType` optional).
+- `io.kestra.plugin.superset.dashboards.Export`: Exports the specified dashboards (`dashboardIds` required) as a `.zip` archive to internal storage via `GET /dashboard/export/`.
+- `io.kestra.plugin.superset.datasets.List`: Pages through all datasets via `GET /dataset/` (`fetchType` optional).
+- `io.kestra.plugin.superset.datasets.Refresh`: Refreshes column metadata for a dataset (`datasetId` required) via `PUT /dataset/{id}/refresh`.
+
+## Triggers
+
+- `io.kestra.plugin.superset.dashboards.Trigger`: Polls `GET /dashboard/` at a configurable `interval` and fires when dashboards are created or modified since the watermark persisted in the namespace KV Store.
