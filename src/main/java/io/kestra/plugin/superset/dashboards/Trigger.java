@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.kestra.core.http.HttpRequest;
-import io.kestra.core.http.HttpResponse;
 import io.kestra.core.http.client.HttpClient;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -17,7 +16,6 @@ import io.kestra.core.models.triggers.PollingTriggerInterface;
 import io.kestra.core.models.triggers.TriggerContext;
 import io.kestra.core.models.triggers.TriggerOutput;
 import io.kestra.core.models.triggers.TriggerService;
-import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.storages.kv.KVValueAndMetadata;
 import io.kestra.plugin.superset.SupersetConnection;
@@ -135,7 +133,7 @@ public class Trigger extends AbstractTrigger implements PollingTriggerInterface,
             var watermarkKey = "superset_wm_" + context.getFlowId().length() + "_" + context.getFlowId()
                 + "_" + this.getId().length() + "_" + this.getId();
             var kvStore = runContext.namespaceKv(context.getNamespace());
-            Optional<String> lastSeen = kvStore.getValue(watermarkKey).map(v -> v.value().toString());
+            var lastSeen = kvStore.getValue(watermarkKey).map(v -> v.value().toString());
 
             if (lastSeen.isEmpty()) {
                 var firstPage = fetchDashboardPage(client, rBaseUrl, rAccessToken, 0, 1);
@@ -245,9 +243,11 @@ public class Trigger extends AbstractTrigger implements PollingTriggerInterface,
         @Schema(title = "Dashboard ID")
         private Integer id;
 
+        @Schema(title = "Dashboard title")
         @JsonProperty("dashboard_title")
         private String dashboardTitle;
 
+        @Schema(title = "Last modification UTC timestamp")
         @JsonProperty("changed_on_utc")
         @JsonAlias("changed_on")
         private String changedOn;
