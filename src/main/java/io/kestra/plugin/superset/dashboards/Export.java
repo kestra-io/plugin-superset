@@ -9,7 +9,7 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.superset.SupersetConnection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -61,7 +61,7 @@ public class Export extends SupersetConnection implements RunnableTask<Export.Ou
             Non-empty list of numeric Superset dashboard IDs to include in the exported ZIP bundle.
             """
     )
-    @NotEmpty
+    @NotNull
     @PluginProperty(group = "main")
     private Property<List<Integer>> dashboardIds;
 
@@ -70,7 +70,7 @@ public class Export extends SupersetConnection implements RunnableTask<Export.Ou
         var rBaseUrl = getBaseUrl(runContext);
         var rIds = runContext.render(this.dashboardIds).asList(Integer.class);
         if (rIds.isEmpty()) {
-            throw new IllegalArgumentException("dashboardIds must not be empty");
+            throw new IllegalArgumentException("dashboardIds must contain at least one dashboard ID: set one or more numeric Superset dashboard IDs to export");
         }
 
         var queryIds = "?q=" + rIds.stream().map(String::valueOf).collect(Collectors.joining(",", "!(", ")"));
