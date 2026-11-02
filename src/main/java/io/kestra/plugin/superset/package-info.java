@@ -1,6 +1,6 @@
 @PluginSubGroup(
     title = "Apache Superset",
-    description = "Apache Superset plugin for Kestra",
+    description = "Manage and orchestrate Apache Superset resources.",
     categories = PluginSubGroup.PluginCategory.DATA
 )
 package io.kestra.plugin.superset;
