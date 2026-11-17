@@ -6,7 +6,7 @@ Orchestrate Apache Superset chart queries, dataset metadata refreshes, dashboard
 
 Every task and trigger authenticates against the Apache Superset REST API via `POST /api/v1/security/login` to obtain a short-lived JWT access token, and automatically fetches an `X-CSRFToken` from `GET /api/v1/security/csrf_token/` for write requests.
 
-Store credentials using [Kestra secrets](https://kestra.io/docs/concepts/secret) and share common connection properties across tasks with [plugin defaults](https://kestra.io/docs/concepts/plugin-defaults):
+Store credentials using [Kestra secrets](https://kestra.io/docs/concepts/secret) and, in the Enterprise Edition, share common connection properties across tasks with [Policies](https://kestra.io/docs/enterprise/governance/policies):
 
 - `url`: Superset API base URL including `/api/v1` (e.g. `https://superset.example.com/api/v1`).
 - `username`: Superset username.
